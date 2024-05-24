@@ -38,7 +38,7 @@ import net.sf.marineapi.nmea.util.Units;
  * 
  * @author Joshua Sweaney
  */
-public interface OSDSentence {
+public interface OSDSentence extends Sentence {
 
     /**
      * Get ownship heading

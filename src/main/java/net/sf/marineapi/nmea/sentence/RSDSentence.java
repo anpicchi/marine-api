@@ -32,7 +32,7 @@ import net.sf.marineapi.nmea.util.Units;
  * 
  * @author Joshua Sweaney
  */
-public interface RSDSentence {
+public interface RSDSentence extends Sentence {
 
     /**
      * Get the range of the origin for VRM1 and EBL1.
