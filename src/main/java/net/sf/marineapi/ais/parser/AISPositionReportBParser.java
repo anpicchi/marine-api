@@ -101,7 +101,7 @@ class AISPositionReportBParser extends AISMessageParser implements AISPositionRe
 
 	private void parse(Sixbit content) {
 		fSOG = content.getInt(FROM[SPEEDOVERGROUND], TO[SPEEDOVERGROUND]);
-		fPositionAccuracy = content.getBoolean(FROM[POSITIONACCURACY]);
+		fPositionAccuracy = content.getBoolean(TO[POSITIONACCURACY]);
 		fLongitude = content.getAs28BitInt(FROM[LONGITUDE], TO[LONGITUDE]);
 		if (!Longitude28.isCorrect(fLongitude))
 			addViolation(new AISRuleViolation("LongitudeInDegrees", fLongitude, Longitude28.RANGE));
