@@ -64,7 +64,7 @@ public abstract class AbstractDataReader implements Runnable {
 	 *
 	 * @param parent {@link SentenceReader} that owns this reader
 	 */
-	AbstractDataReader(SentenceReader parent) {
+	protected AbstractDataReader(SentenceReader parent) {
 		setParent(parent);
 	}
 
