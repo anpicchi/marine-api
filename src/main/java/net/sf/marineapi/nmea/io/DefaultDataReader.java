@@ -23,6 +23,7 @@ package net.sf.marineapi.nmea.io;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import net.sf.marineapi.nmea.util.SentenceHolder;
 
 /**
  * The default data reader implementation using InputStream as data source.
@@ -50,7 +51,7 @@ class DefaultDataReader extends AbstractDataReader {
 	 * @see net.sf.marineapi.nmea.io.AbstractDataReader#read()
 	 */
 	@Override
-	public String read() throws Exception {
-		return buffer.ready() ? buffer.readLine() : null;
+	public SentenceHolder read() throws Exception {
+		return buffer.ready() ? new SentenceHolder(false, buffer.readLine()) : new SentenceHolder(false, null);
 	}
 }

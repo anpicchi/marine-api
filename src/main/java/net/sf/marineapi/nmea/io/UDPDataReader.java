@@ -25,6 +25,7 @@ import java.net.DatagramSocket;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
+import net.sf.marineapi.nmea.util.SentenceHolder;
 
 /**
  * DataReader implementation using DatagramSocket as data source.
@@ -49,7 +50,7 @@ class UDPDataReader extends AbstractDataReader {
 	}
 
 	@Override
-	public String read() throws Exception {
+	public SentenceHolder read() throws Exception {
 		String data = null;
 		
 		while (true) {
@@ -64,7 +65,7 @@ class UDPDataReader extends AbstractDataReader {
 		    queue.addAll(Arrays.asList(lines));
 		}
 		
-		return data;
+		return new SentenceHolder(false, data);
 	}
 
 	/**

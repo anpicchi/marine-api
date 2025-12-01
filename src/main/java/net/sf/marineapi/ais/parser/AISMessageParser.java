@@ -27,6 +27,7 @@ import net.sf.marineapi.ais.message.AISMessage;
 import net.sf.marineapi.ais.util.Sixbit;
 import net.sf.marineapi.ais.util.Violation;
 import net.sf.marineapi.nmea.sentence.AISSentence;
+import net.sf.marineapi.nmea.sentence.TalkerId;
 
 /**
  * Base class for all AIS messages.
@@ -42,19 +43,20 @@ public class AISMessageParser implements AISMessage {
     private static final int[] FROM = { 0, 6, 8 };
     private static final int[] TO = { 6, 8, 38 };
 
+    private TalkerId talkerId;
     private Sixbit decoder;
     private String message = "";
     private int fillBits = 0;
     private int lastFragmentNr = 0;
 
     private List<Violation> fViolations = new ArrayList<>();
-
+    private boolean military;
 
     /**
      * Default constructor. Message content musts be appended before using
      * the parser.
      *
-     * @see #append(String, int, int)
+     * @see #append(boolean, TalkerId, String, int, int)
      */
     public AISMessageParser() {
     }
@@ -72,7 +74,7 @@ public class AISMessageParser implements AISMessage {
             if (s.isFragmented() && s.getFragmentNumber() != index++) {
                 throw new IllegalArgumentException("Incorrect order of AIS sentences");
             }
-            this.append(s.getPayload(), s.getFragmentNumber(), s.getFillBits());
+            this.append(s.isMilitary(), s.getTalkerId(), s.getPayload(), s.getFragmentNumber(), s.getFillBits());
         }
         this.decoder = new Sixbit(this.message, this.fillBits);
     }
@@ -119,7 +121,8 @@ public class AISMessageParser implements AISMessage {
     }
 
     /**
-     * Add a new rule violation to this message
+     * Add a new rule violation to this message.
+     *
      * @param v Violation to add
      */
     protected void addViolation(Violation v) {
@@ -145,6 +148,11 @@ public class AISMessageParser implements AISMessage {
     }
 
     @Override
+    public TalkerId getTalkerId() {
+        return this.talkerId;
+    }
+
+    @Override
     public int getMessageType() {
         return getSixbit().getInt(FROM[MESSAGE_TYPE], TO[MESSAGE_TYPE]);
     }
@@ -157,6 +165,21 @@ public class AISMessageParser implements AISMessage {
     @Override
     public int getMMSI() {
         return getSixbit().getInt(FROM[MMSI], TO[MMSI]);
+    }
+
+    @Override
+    public void setTalkerId(TalkerId talkerId) {
+        this.talkerId = talkerId;
+    }
+
+    @Override
+    public void setMilitary(boolean value) {
+        this.military = value;
+    }
+
+    @Override
+    public boolean isMilitary() {
+        return this.military;
     }
 
     /**
@@ -177,11 +200,16 @@ public class AISMessageParser implements AISMessage {
      * Append a paylod fragment to combine messages devivered over multiple
      * sentences.
      *
+     * @param military the military flag
+     * @param talkerId the talker ID
      * @param fragment Data fragment in sixbit encoded format
      * @param fragmentIndex Fragment number within the fragments sequence (1-based)
      * @param fillBits Number of additional fill-bits
      */
-    void append(String fragment, int fragmentIndex, int fillBits) {
+    void append(boolean military, TalkerId talkerId, String fragment, int fragmentIndex, int fillBits) {
+        if (talkerId == null) {
+            throw  new IllegalArgumentException("Talker ID cannot be null");
+        }
         if (fragment == null || fragment.isEmpty()) {
             throw new IllegalArgumentException("Message fragment cannot be null or empty");
         }
@@ -190,6 +218,43 @@ public class AISMessageParser implements AISMessage {
         }
         if (fillBits < 0) {
             throw new IllegalArgumentException("Fill bits cannot be negative");
+        }
+
+        if (!this.military) {
+            this.military = military;
+        }
+        this.talkerId = talkerId;
+        this.lastFragmentNr = fragmentIndex;
+        this.message += fragment;
+        this.fillBits = fillBits; // we always use the last
+    }
+
+    /**
+     * Append a paylod fragment to combine messages devivered over multiple
+     * sentences.
+     *
+     * @param talkerId talker id data
+     * @param fragment Data fragment in sixbit encoded format
+     * @param fragmentIndex Fragment number within the fragments sequence (1-based)
+     * @param fillBits Number of additional fill-bits
+     */
+    void append(TalkerId talkerId, String fragment, int fragmentIndex, int fillBits) {
+        if (talkerId == null) {
+            throw  new IllegalArgumentException("Talker ID cannot be null");
+        }
+        if (fragment == null || fragment.isEmpty()) {
+            throw new IllegalArgumentException("Message fragment cannot be null or empty");
+        }
+        if (fragmentIndex < 1 || fragmentIndex != (lastFragmentNr + 1)) {
+            throw new IllegalArgumentException("Invalid fragment index or sequence order");
+        }
+        if (fillBits < 0) {
+            throw new IllegalArgumentException("Fill bits cannot be negative");
+        }
+
+        this.military = military;
+        if (this.talkerId == null) {
+            this.talkerId = talkerId;
         }
         this.lastFragmentNr = fragmentIndex;
         this.message += fragment;

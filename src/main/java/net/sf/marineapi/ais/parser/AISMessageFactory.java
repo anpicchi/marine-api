@@ -81,6 +81,8 @@ public class AISMessageFactory {
         try {
             Constructor<? extends AISMessage> co = c.getConstructor(Sixbit.class);
             result = co.newInstance(parser.getSixbit());
+            result.setTalkerId(parser.getTalkerId());
+            result.setMilitary(parser.isMilitary());
         } catch (Exception e) {
             throw new IllegalStateException(e.getCause());
         }

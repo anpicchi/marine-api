@@ -10,12 +10,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
 
-import net.sf.marineapi.nmea.event.AbstractSentenceListener;
 import net.sf.marineapi.nmea.event.SentenceEvent;
 import net.sf.marineapi.nmea.event.SentenceListener;
 import net.sf.marineapi.nmea.parser.BODTest;
@@ -25,9 +20,7 @@ import net.sf.marineapi.nmea.parser.TXTTest;
 import net.sf.marineapi.nmea.sentence.Sentence;
 import net.sf.marineapi.nmea.sentence.SentenceId;
 
-import net.sf.marineapi.nmea.sentence.TXTSentence;
-import net.sf.marineapi.test.util.UDPServerMock;
-import org.junit.After;
+import net.sf.marineapi.nmea.util.SentenceHolder;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -294,8 +287,8 @@ public class SentenceReaderTest {
 		}
 
 		@Override
-		public String read() throws Exception {
-			return this.sentence;
+		public SentenceHolder read() throws Exception {
+			return new SentenceHolder(false, this.sentence);
 		}
 	}
 

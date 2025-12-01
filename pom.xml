@@ -25,7 +25,7 @@ along with Java Marine API. If not, see <http://www.gnu.org/licenses />.
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.sf.marineapi</groupId>
     <artifactId>marineapi</artifactId>
-    <version>0.12.1.0</version>
+    <version>0.12.2.0</version>
     <packaging>bundle</packaging>
 
     <name>Java Marine API</name>
@@ -98,6 +98,14 @@ along with Java Marine API. If not, see <http://www.gnu.org/licenses />.
             <version>3.14.0</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>33.4.8-jre</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

@@ -20,12 +20,21 @@
  */
 package net.sf.marineapi.ais.message;
 
+import net.sf.marineapi.nmea.sentence.TalkerId;
+
 /**
  * Common base interface of AIS messages.
  * 
  * @author Kimmo Tuukkanen
  */
 public interface AISMessage {
+
+    /**
+     * Returns the talker id of the message.
+     *
+     * @return TalkerID of the message.
+     */
+    TalkerId getTalkerId();
 
 	/**
 	 * Returns the message type.
@@ -48,4 +57,25 @@ public interface AISMessage {
 	 * @return MMSI identifier
 	 */
 	int getMMSI();
+
+    /**
+     * Set a talker ID.
+     *
+     * @param talkerId the talker ID to set.
+     */
+    void setTalkerId(TalkerId talkerId);
+
+    /**
+     * Sets military flag.
+     *
+     * @param value the military flag
+     */
+    void setMilitary(boolean value);
+
+    /**
+     * Returns if sentence arrive from WAIS or not.
+     *
+     * @return true if military sentence, false otherwise
+     */
+    boolean isMilitary();
 }

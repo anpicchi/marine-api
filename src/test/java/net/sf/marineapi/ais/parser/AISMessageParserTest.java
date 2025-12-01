@@ -1,6 +1,7 @@
 package net.sf.marineapi.ais.parser;
 
 import net.sf.marineapi.ais.util.Sixbit;
+import net.sf.marineapi.nmea.sentence.TalkerId;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -39,18 +40,18 @@ public class AISMessageParserTest {
     @Test
     public void testAppend() {
         AISMessageParser msg = new AISMessageParser();
-        msg.append(payload, 1, 0);
+        msg.append(TalkerId.AI, payload, 1, 0);
         assertEquals(1, msg.getMessageType());
         assertEquals(0, msg.getRepeatIndicator());
         assertEquals(244670316, msg.getMMSI());
-        assertEquals(payload, msg.getSixbit().getPayload());
+        assertEquals(TalkerId.AI.name(), payload, msg.getSixbit().getPayload());
     }
 
     @Test
     public void testAppendIncorrectOrder() {
         try {
             AISMessageParser msg = new AISMessageParser();
-            msg.append(payload, 2, 0);
+            msg.append(TalkerId.AI, payload, 2, 0);
         } catch (IllegalArgumentException iae) {
             assertEquals("Invalid fragment index or sequence order", iae.getMessage());
         } catch (Exception e) {
@@ -63,8 +64,8 @@ public class AISMessageParserTest {
     public void testAppendInvalidTail() {
         try {
             AISMessageParser msg = new AISMessageParser();
-            msg.append(payload, 1, 0);
-            msg.append(payload, 1, 0);
+            msg.append(TalkerId.AI, payload, 1, 0);
+            msg.append(TalkerId.AI, payload, 1, 0);
             fail("AISMessageParser.append() did not throw exception");
         } catch (IllegalArgumentException iae) {
             assertEquals("Invalid fragment index or sequence order", iae.getMessage());
@@ -78,7 +79,7 @@ public class AISMessageParserTest {
     public void testAppendEmptyString() {
         try {
             AISMessageParser msg = new AISMessageParser();
-            msg.append("", 1, 0);
+            msg.append(TalkerId.AI, "", 1, 0);
             fail("AISMessageParser.append() did not throw exception");
         } catch (IllegalArgumentException iae) {
             assertEquals("Message fragment cannot be null or empty", iae.getMessage());
@@ -91,7 +92,7 @@ public class AISMessageParserTest {
     public void testAppendNull() {
         try {
             AISMessageParser msg = new AISMessageParser();
-            msg.append(null, 1, 0);
+            msg.append(TalkerId.AI, null, 1, 0);
             fail("AISMessageParser.append() did not throw exception");
         } catch (IllegalArgumentException iae) {
             assertEquals("Message fragment cannot be null or empty", iae.getMessage());
@@ -104,7 +105,7 @@ public class AISMessageParserTest {
     public void testAppendNegativeFillBits() {
         try {
             AISMessageParser msg = new AISMessageParser();
-            msg.append(payload, 1, -1);
+            msg.append(TalkerId.AI, payload, 1, -1);
             fail("AISMessageParser.append() did not throw exception");
         } catch (IllegalArgumentException iae) {
             assertEquals("Fill bits cannot be negative", iae.getMessage());
@@ -117,7 +118,7 @@ public class AISMessageParserTest {
     public void testAppendInvalidIndex() {
         try {
             AISMessageParser msg = new AISMessageParser();
-            msg.append(payload, 0, 0);
+            msg.append(TalkerId.AI, payload, 0, 0);
             fail("AISMessageParser.append() did not throw exception");
         } catch (IllegalArgumentException iae) {
             assertEquals("Invalid fragment index or sequence order", iae.getMessage());

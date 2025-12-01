@@ -20,6 +20,11 @@
  */
 package net.sf.marineapi.nmea.sentence;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
 /**
  * Base interface and constants for NMEA 0183 sentences.
  *
@@ -27,7 +32,12 @@ package net.sf.marineapi.nmea.sentence;
  */
 public interface Sentence {
 
-	/**
+    Cache<Integer, Supplier<Boolean>> cache = CacheBuilder.newBuilder()
+        .expireAfterAccess(3, TimeUnit.MINUTES)  // scade 3 minuti dopo l'ultimo accesso (get o put)
+        .maximumSize(10_000)
+        .build();
+
+    /**
 	 * Alternative sentence begin character used in VDO and VDM sentences.
 	 */
 	char ALTERNATIVE_BEGIN_CHAR = '!';
@@ -53,7 +63,20 @@ public interface Sentence {
 	 */
 	int MAX_LENGTH = 82;
 
-	/**
+    default boolean isMilitary() {
+        int hashcode = this.hashCode();
+        Supplier<Boolean> supplier = cache.getIfPresent(hashcode);
+        if (supplier == null) {
+            return false;
+        }
+        return supplier.get();
+    }
+
+    default void setIsMilitarySupplier(Supplier<Boolean> supplier) {
+        cache.put(this.hashCode(), supplier);
+    }
+
+    /**
 	 * Sentence terminator {@code &lt;CR&gt;&lt;LF&gt;}.
 	 */
 	String TERMINATOR = "\r\n";

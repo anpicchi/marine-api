@@ -20,14 +20,15 @@
  */
 package net.sf.marineapi.nmea.io;
 
+import java.io.InputStream;
+import java.net.DatagramSocket;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.parser.UnsupportedSentenceException;
 import net.sf.marineapi.nmea.sentence.Sentence;
 import net.sf.marineapi.nmea.sentence.SentenceValidator;
-
-import java.io.InputStream;
-import java.net.DatagramSocket;
-import java.util.logging.Logger;
+import net.sf.marineapi.nmea.util.SentenceHolder;
 
 /**
  * Abstract base class for data readers, with common methods and run loop
@@ -52,6 +53,9 @@ public abstract class AbstractDataReader implements Runnable {
 
 	private SentenceReader parent;
 	private volatile boolean isRunning = true;
+
+    private static final Supplier<Boolean> militarySupplier = () -> true;
+    private static final Supplier<Boolean> notMilitarySupplier = () -> false;
 
 	/**
 	 * Default constructor.
@@ -101,12 +105,12 @@ public abstract class AbstractDataReader implements Runnable {
 	}
 
 	/**
-	 * Read one NMEA-0183 sentence and return it.
-	 *
-	 * @return Sentence String or {@code null} if nothing was read.
-	 * @throws Exception On read failure.
-	 */
-	public abstract String read() throws Exception;
+     * Read one NMEA-0183 sentence and return it.
+     *
+     * @return Sentence String or {@code null} if nothing was read.
+     * @throws Exception On read failure.
+     */
+	public abstract SentenceHolder read() throws Exception;
 
 	/*
 	 * (non-Javadoc)
@@ -120,12 +124,17 @@ public abstract class AbstractDataReader implements Runnable {
 
 		while (isRunning) {
 			try {
-				String data = read();
+                SentenceHolder sentenceHolder = read();
+                if (sentenceHolder == null) {
+                    Thread.sleep(SLEEP_TIME);
+                }
+				String data = sentenceHolder.getSentence();
 				if (data == null) {
 					Thread.sleep(SLEEP_TIME);
 				} else if (SentenceValidator.isValid(data)) {
 					monitor.refresh();
 					Sentence s = factory.createParser(data);
+                    s.setIsMilitarySupplier(sentenceHolder.isMilitary() ? militarySupplier : notMilitarySupplier);
 					parent.fireSentenceEvent(s);
 				} else if (!SentenceValidator.isSentence(data)) {
 					parent.fireDataEvent(data);
